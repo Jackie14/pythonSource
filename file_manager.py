@@ -25,7 +25,7 @@ def _timeStr2Second(timeStr):
 
     return time.mktime(time.strptime(timeStr, formatStr))
 
-def _cleanOlerdImpl(pathStr, timeSecond) :
+def _cleanOlerdImpl(pathStr, modifyTimeSecond, deleteEmptyDir) :
     """
     Delete files which is not modified after timeSecond
     """
@@ -33,39 +33,49 @@ def _cleanOlerdImpl(pathStr, timeSecond) :
         raise Exception("Do not exists: " + pathStr)
 
     if os.path.isdir(pathStr) :
+        # Clean file/dir in this directory
         fileList = os.listdir(pathStr)
         oriDir = os.getcwd()
         os.chdir(pathStr)
         for f in fileList :
-            _cleanOlerdImpl(f, timeSecond)
+            _cleanOlerdImpl(f, modifyTimeSecond, deleteEmptyDir)
         os.chdir(oriDir)
 
-        fileList = os.listdir(pathStr)
-        if len(fileList) == 0 :
-            try :
-                os.rmdir(pathStr)
-                print("Delete dir %s, since it's empty now"%(pathStr))
-            except Exception as e :
-                print (e)
+        # Delete current directory, if it's empty
+        if deleteEmptyDir :
+            fileList = os.listdir(pathStr)
+            if len(fileList) == 0 :
+                try :
+                    os.rmdir(pathStr)
+                    print("Delete dir %s, since it's empty now"%(pathStr))
+                except Exception as e :
+                    print (e)
 
     else :
-        mTime = os.stat(pathStr).st_mtime
-        if mTime < timeSecond :
+        # Delete older file
+        modifyTime = os.stat(pathStr).st_mtime
+        if  modifyTime < modifyTimeSecond :
             try :
                 os.remove(pathStr)
-                print("Delete file %s since it's not modified after %s"%(pathStr, time.asctime(time.gmtime(timeSecond))))
+                print("Delete file %s since it's not modified after %s"%(pathStr, time.asctime(time.gmtime(modifyTimeSecond))))
             except Exception as e :
                 print (e)
     
-def cleanOlder(pathStr, timeStr) :
+def cleanOlder(pathStr, latestModifyTime, deleteEmptyDir=False) :
     """
-    Remove those old files, which is not modified after timeStr
+    Remove those older files within specified path, which is not modified after lastestModifyTime 
     pathStr: directory or file path string
-    timeStr: time string. "1999" "199901" "19990101" "19990101010101"
+    latestModifyTime: it can be time string, like: "1999" "199901" "19990101" "19990101010101"
+                      it can also be time seconds from Epoch time
+    deleteEmptyDir: whether delete those empty directories
     """
     try :
-        modifyTimeSecond = _timeStr2Second(timeStr);
-        _cleanOlerdImpl(pathStr, modifyTimeSecond)
+        if isinstance(latestModifyTime, str) :
+            modifyTimeSecond = _timeStr2Second(latestModifyTime)
+        else : # Supposing it's integer of time seconds from Epoch time
+            modifyTimeSecond = latestModifyTime
+
+        _cleanOlerdImpl(pathStr, modifyTimeSecond, deleteEmptyDir)
     except Exception as e:
         print(e)
         
@@ -73,11 +83,11 @@ if __name__ == "__main__" :
     # Mock arguments
     # sys.argv =[sys.argv[0], "testDir", "2018"]
     
-    if len(sys.argv) != 3 :
+    if len(sys.argv) < 3 :
         print("Error!!!")  
-        print("Sytax: fileOper.py <path> <time>")        
+        print("Sytax: fileOper.py <path> <time> [delete Empty Dir]")        
     else :
-        cleanOlder(sys.argv[1], sys.argv[2])
-
-    # Just do want to keep the window stay
-    input()
+        deleteEmptyDir = False
+        if len(sys.argv) > 3 and sys.argv[3][0] == '1' :
+            deleteEmptyDir = True
+        cleanOlder(sys.argv[1], sys.argv[2], deleteEmptyDir)
