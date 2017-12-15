@@ -25,7 +25,7 @@ def _timeStr2Second(timeStr):
 
     return time.mktime(time.strptime(timeStr, formatStr))
 
-def _cleanOlerdImpl(pathStr, modifyTimeSecond, deleteEmptyDir) :
+def _cleanOlderImpl(pathStr, modifyTimeSecond, deleteEmptyDir) :
     """
     Delete files which is not modified after timeSecond
     """
@@ -38,7 +38,7 @@ def _cleanOlerdImpl(pathStr, modifyTimeSecond, deleteEmptyDir) :
         oriDir = os.getcwd()
         os.chdir(pathStr)
         for f in fileList :
-            _cleanOlerdImpl(f, modifyTimeSecond, deleteEmptyDir)
+            _cleanOlderImpl(f, modifyTimeSecond, deleteEmptyDir)
         os.chdir(oriDir)
 
         # Delete current directory, if it's empty
@@ -75,7 +75,7 @@ def cleanOlder(pathStr, latestModifyTime, deleteEmptyDir=False) :
         else : # Supposing it's integer of time seconds from Epoch time
             modifyTimeSecond = latestModifyTime
 
-        _cleanOlerdImpl(pathStr, modifyTimeSecond, deleteEmptyDir)
+        _cleanOlderImpl(pathStr, modifyTimeSecond, deleteEmptyDir)
     except Exception as e:
         print(e)
         
