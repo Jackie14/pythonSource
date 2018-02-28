@@ -3,6 +3,8 @@
 # This script it used to resolve the eight queen problem
 import copy
 
+count = 0
+ansowers = []
 def print_chess_board(queens):
     """
     print the chess board
@@ -107,6 +109,23 @@ def check_chess_board(queens):
                 return False 
     return True
 
+
+def compare_ansower(a1, a2):
+    for i in range(8):
+        for j in range(8):
+            if a1[i][j] != a2[i][j] :
+                return False
+    return True
+
+def add_new_ansower(a1):
+    global ansowers
+    for i in ansowers:
+        if compare_ansower(i, a1) == True:
+            return False
+    ansowers.append(copy.deepcopy(a1))
+    return True
+
+
 def find_eight_queen(f1, f2):
     # Inital a empty chess board
     queens=[[0 for i in range(8)] for i in range(8)]
@@ -123,9 +142,14 @@ def find_eight_queen(f1, f2):
            # print("Get here, allocate next queen")
             if len(queenPos) == 8:
                 # We get a good ansower
-                print("GOOD")
-                print_chess_board(queens)
-                return True
+                if add_new_ansower(queens) :
+                    global ansowers
+                    print("NO. %d"%len(ansowers))
+                    print_chess_board(queens)
+
+                # do not return here, we will get all ansower
+                #return True
+
 
             gotNew = False
             for i in range(8):
@@ -184,4 +208,4 @@ def show_all_eight_queen():
                 count += 1
 
 if __name__ == "__main__" :
-    show_all_eight_queen()
+    find_eight_queen(0, 0)
