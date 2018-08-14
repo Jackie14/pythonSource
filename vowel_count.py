@@ -32,4 +32,7 @@ def vowleCount(text):
     return vowleDict
 
 if __name__ == "__main__":
+    if len(sys.argv) < 2 :
+        print("Please provide text")
+        sys.exit()
     print(vowleCount(sys.argv[1]))
