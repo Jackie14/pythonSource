@@ -17,14 +17,15 @@ def parsePage(page):
 
     # Try to got ficture for that person
     gotPic = False
-
+    headers = {'Referer': 'http://www.baidu.com',
+        "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.110 Safari/537.36"}
     if not gotPic:
         try: 
             picDir = soup.find('div', attrs={'class':"summary-pic"})
             pic = picDir.find('img')
             picLink = pic['src']
             httpPicLink = picLink.replace("https://", "http://")
-            req = urllib.request.Request(httpPicLink, None, headers={"User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.110 Safari/537.36"})
+            req = urllib.request.Request(httpPicLink, None, headers=headers)
             picResp = urllib.request.urlopen(req, timeout=10)
             gotPic = True
         except:
@@ -32,11 +33,11 @@ def parsePage(page):
 
     if not gotPic:
         try: 
-            picDir = soup.find('div', attrs={'class':"lemmaWgt-secondsKnow-gallery"})
+            picDir = soup.find('ul', attrs={'class':"lemmaWgt-secondsKnow-gallery"})
             pic = picDir.find('img')
             picLink = pic['src']
             httpPicLink = picLink.replace("https://", "http://")
-            req = urllib.request.Request(httpPicLink, None, headers={"User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.110 Safari/537.36"})
+            req = urllib.request.Request(httpPicLink, None, headers=headers)
             picResp = urllib.request.urlopen(req, timeout=10)
             gotPic = True
         except:
